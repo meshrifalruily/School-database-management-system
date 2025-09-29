@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Assign Student to Teacher</title>
+</head>
+<body>
+    <h1>Assign Student to Teacher</h1>
+
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    {% if message %}
+        <p style="color: green;">{{ message }}</p>
+    {% endif %}
+
+    <form action="/assign-student" method="post">
+        <div>
+            <label for="teacher">Teacher</label>
+            <select id="teacher" name="teacher_id" required>
+                <option value="">-- select teacher --</option>
+                {% for t in teachers %}
+                    <option value="{{ t.id }}">{{ t.name }} (ID: {{ t.id }}) - {{ t.subject }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="student">Student</label>
+            <select id="student" name="student_id" required>
+                <option value="">-- select student --</option>
+                {% for s in students %}
+                    <option value="{{ s.id }}">{{ s.name }} (ID: {{ s.id }}) - Grade: {{ s.grade }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit">Assign</button>
+    </form>
+
+    <hr />
+
+    <section>
+        <h2>Remove a Teacher</h2>
+        <form action="/remove-teacher" method="post" onsubmit="return confirm('Remove selected teacher? This will delete the teacher and remove associations.')">
+            <label for="remove-teacher-id">Teacher</label>
+            <select id="remove-teacher-id" name="teacher_id" required>
+                <option value="">-- select teacher to remove --</option>
+                {% for t in teachers %}
+                    <option value="{{ t.id }}">{{ t.name }} (ID: {{ t.id }}) - {{ t.subject }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Remove Teacher</button>
+        </form>
+    </section>
+
+    <section>
+        <h2>Remove a Student</h2>
+        <form action="/remove-student" method="post" onsubmit="return confirm('Remove selected student? This will delete the student and remove associations.')">
+            <label for="remove-student-id">Student</label>
+            <select id="remove-student-id" name="student_id" required>
+                <option value="">-- select student to remove --</option>
+                {% for s in students %}
+                    <option value="{{ s.id }}">{{ s.name }} (ID: {{ s.id }}) - Grade: {{ s.grade }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Remove Student</button>
+        </form>
+    </section>
+
+    <p><a href="/">Home</a></p>
+</body>
+</html>

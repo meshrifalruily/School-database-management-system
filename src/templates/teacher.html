@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teacher Details</title>
+</head>
+<body>
+    <h1>Teacher Details</h1>
+
+    <h2>{{ teacher.name }} (ID: {{ teacher.id }})</h2>
+    <p>Subject: {{ teacher.subject }}</p>
+
+    <h3>Students</h3>
+    {% if students and students|length > 0 %}
+        <ul>
+            {% for s in students %}
+                <li>{{ s.name }} (ID: {{ s.id }}) - Grade: {{ s.grade }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No students assigned to this teacher.</p>
+    {% endif %}
+
+    <p><a href="/teacher">Search again</a> | <a href="/">Home</a></p>
+</body>
+</html>
