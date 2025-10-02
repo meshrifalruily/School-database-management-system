@@ -175,3 +175,13 @@ def student_search(request: Request, student_id: int = None, db=Depends(get_db))
     student_courses = [{"id": c.id, "name": c.name} for c in student.courses]
     student_dict = {"id": student.id, "name": student.name, "grade": student.grade}
     return templates.TemplateResponse("search.html", {"request": request, "student": student_dict, "student_teachers": student_teachers, "student_courses": student_courses})
+
+@app.get("/teacher")
+def teacher_alias(request: Request, teacher_id: int = None, db=Depends(get_db)):
+    """Compatibility wrapper for /teacher -> uses the same logic as /search."""
+    return teacher_search(request, teacher_id, db)
+
+@app.get("/teacher/{teacher_id}")
+def teacher_by_id_alias(request: Request, teacher_id: int, db=Depends(get_db)):
+    """Compatibility wrapper for /teacher/{teacher_id} -> uses the same logic as /search/{teacher_id}."""
+    return get_teacher_by_id(request, teacher_id, db)
