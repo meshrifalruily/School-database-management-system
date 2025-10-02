@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search Teachers & Students</title>
+</head>
+<body>
+    <h1>Search Teacher and View Students</h1>
+
+    <div style="display:flex; gap:40px; align-items:flex-start">
+        <div>
+            <h2>Find Teacher</h2>
+            <form action="/teacher" method="get">
+                <label for="teacher_id">Teacher ID</label>
+                <input id="teacher_id" name="teacher_id" type="number" required />
+                <button type="submit">Find</button>
+            </form>
+        </div>
+
+        <div>
+            <h2>Find Student</h2>
+            <form action="/student" method="get">
+                <label for="student_id">Student ID</label>
+                <input id="student_id" name="student_id" type="number" required />
+                <button type="submit">Find</button>
+            </form>
+        </div>
+    </div>
+
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+    {% if teacher %}
+        <hr />
+        <h2>{{ teacher.name }} (ID: {{ teacher.id }})</h2>
+        <p>Subject: {{ teacher.subject }}</p>
+
+        <h3>Courses</h3>
+        {% if courses and courses|length > 0 %}
+            <ul>
+                {% for c in courses %}
+                    <li>{{ c.name }} (ID: {{ c.id }})</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No courses assigned to this teacher.</p>
+        {% endif %}
+
+        <h3>Students</h3>
+        {% if students and students|length > 0 %}
+            <ul>
+                {% for s in students %}
+                    <li>{{ s.name }} (ID: {{ s.id }}) - Grade: {{ s.grade }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No students assigned to this teacher.</p>
+        {% endif %}
+
+        <p><a href="/assign">Manage assignments</a> | <a href="/">Home</a></p>
+    {% endif %}
+
+    {% if student %}
+        <hr />
+        <h2>{{ student.name }} (ID: {{ student.id }})</h2>
+        <p>Grade: {{ student.grade }}</p>
+
+        <h3>Teachers</h3>
+        {% if student_teachers and student_teachers|length > 0 %}
+            <ul>
+                {% for t in student_teachers %}
+                    <li>{{ t.name }} (ID: {{ t.id }}) - Subject: {{ t.subject }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No teachers assigned to this student.</p>
+        {% endif %}
+
+        <h3>Courses</h3>
+        {% if student_courses and student_courses|length > 0 %}
+            <ul>
+                {% for c in student_courses %}
+                    <li>{{ c.name }} (ID: {{ c.id }})</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No courses assigned to this student.</p>
+        {% endif %}
+
+        <p><a href="/assign">Manage assignments</a> | <a href="/">Home</a></p>
+    {% endif %}
+
+    {% if not teacher and not student and not error %}
+        <p>Enter a teacher or student ID above and click "Find" to view details.</p>
+    {% endif %}
+</body>
+</html>

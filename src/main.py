@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
-from models.tables import get_db, Teachers, Students
+from models.tables import get_db, Teachers, Students, Courses
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
@@ -25,6 +25,15 @@ def add_student(name: str = Form(...), grade: str = Form(...), db=Depends(get_db
     db.refresh(new_student)
     return {"message": "Student added successfully", "student": {"id": new_student.id, "name": new_student.name, "grade": new_student.grade}}
 
+@app.post("/add-course")
+def add_course(name: str = Form(...), db=Depends(get_db)):
+    """Create a new course."""
+    new_course = Courses(name=name)
+    db.add(new_course)
+    db.commit()
+    db.refresh(new_course)
+    return {"message": "Course added successfully", "course": {"id": new_course.id, "name": new_course.name}}
+
 @app.post("/assign-student")
 def assign_student(request: Request, teacher_id: int = Form(...), student_id: int = Form(...), db=Depends(get_db)):
     """Assign a student to a teacher using form data and render the assign page with a message."""
@@ -42,10 +51,11 @@ def assign_student(request: Request, teacher_id: int = Form(...), student_id: in
 
 @app.get("/assign")
 def assign_page(request: Request, db=Depends(get_db)):
-    """Render the assign page with available teachers and students."""
+    """Render the assign page with available teachers, students and courses."""
     teachers = db.query(Teachers).all()
     students = db.query(Students).all()
-    return templates.TemplateResponse("assign.html", {"request": request, "teachers": teachers, "students": students})
+    courses = db.query(Courses).all()
+    return templates.TemplateResponse("assign.html", {"request": request, "teachers": teachers, "students": students, "courses": courses})
 
 @app.post("/assign-teacher")
 def assign_teacher(student_id: int, teacher_id: int, db=Depends(get_db)):
@@ -57,29 +67,53 @@ def assign_teacher(student_id: int, teacher_id: int, db=Depends(get_db)):
     db.commit()
     return {"message": f"Teacher {teacher.name} assigned to Student {student.name} successfully"}
 
-@app.get("/teacher")
+@app.post("/assign-course-to-teacher")
+def assign_course_to_teacher(course_id: int = Form(...), teacher_id: int = Form(...), db=Depends(get_db)):
+    """Assign a course to a teacher."""
+    course = db.query(Courses).filter(Courses.id == course_id).first()
+    teacher = db.query(Teachers).filter(Teachers.id == teacher_id).first()
+    if not course or not teacher:
+        return {"error": "Course or Teacher not found"}
+    teacher.courses.append(course)
+    db.commit()
+    return {"message": f"Course {course.name} assigned to Teacher {teacher.name} successfully"}
+
+@app.post("/assign-course-to-student")
+def assign_course_to_student(course_id: int = Form(...), student_id: int = Form(...), db=Depends(get_db)):
+    """Assign a course to a student."""
+    course = db.query(Courses).filter(Courses.id == course_id).first()
+    student = db.query(Students).filter(Students.id == student_id).first()
+    if not course or not student:
+        return {"error": "Course or Student not found"}
+    student.courses.append(course)
+    db.commit()
+    return {"message": f"Course {course.name} assigned to Student {student.name} successfully"}
+
+@app.get("/search")
 def teacher_search(request: Request, teacher_id: int = None, db=Depends(get_db)):
     """Render a search form or show teacher details when `teacher_id` query param is provided."""
     if teacher_id is None:
-        return templates.TemplateResponse("teacher_search.html", {"request": request})
+        return templates.TemplateResponse("search.html", {"request": request})
 
     teacher = db.query(Teachers).filter(Teachers.id == teacher_id).first()
     if not teacher:
-        return templates.TemplateResponse("teacher_search.html", {"request": request, "error": "Teacher not found"})
+        return templates.TemplateResponse("search.html", {"request": request, "error": "Teacher not found"})
 
     students = [{"id": s.id, "name": s.name, "grade": s.grade} for s in teacher.students]
+    courses = [{"id": c.id, "name": c.name} for c in teacher.courses]
     teacher_dict = {"id": teacher.id, "name": teacher.name, "subject": teacher.subject}
-    return templates.TemplateResponse("teacher.html", {"request": request, "teacher": teacher_dict, "students": students})
+    return templates.TemplateResponse("search.html", {"request": request, "teacher": teacher_dict, "students": students, "courses": courses})
 
-@app.get("/teacher/{teacher_id}")
+@app.get("/search/{teacher_id}")
 def get_teacher_by_id(request: Request, teacher_id: int, db=Depends(get_db)):
-    """Return teacher details and their students for a given teacher_id as an HTML page."""
+    """Return teacher details and their students/courses for a given teacher_id as an HTML page."""
     teacher = db.query(Teachers).filter(Teachers.id == teacher_id).first()
     if not teacher:
-        return templates.TemplateResponse("teacher_search.html", {"request": request, "error": "Teacher not found"})
+        return templates.TemplateResponse("search.html", {"request": request, "error": "Teacher not found"})
     students = [{"id": s.id, "name": s.name, "grade": s.grade} for s in teacher.students]
+    courses = [{"id": c.id, "name": c.name} for c in teacher.courses]
     teacher_dict = {"id": teacher.id, "name": teacher.name, "subject": teacher.subject}
-    return templates.TemplateResponse("teacher.html", {"request": request, "teacher": teacher_dict, "students": students})
+    return templates.TemplateResponse("search.html", {"request": request, "teacher": teacher_dict, "students": students, "courses": courses})
 
 @app.post("/remove-teacher")
 def remove_teacher(request: Request, teacher_id: int = Form(...), db=Depends(get_db)):
@@ -126,3 +160,18 @@ def remove_student(request: Request, student_id: int = Form(...), db=Depends(get
 def remove_student_get():
     """Redirect GET requests for remove-student back to the assign page (deletes remain POST-only)."""
     return RedirectResponse(url="/assign")
+
+@app.get("/student")
+def student_search(request: Request, student_id: int = None, db=Depends(get_db)):
+    """Render a search form or show student details when `student_id` query param is provided."""
+    if student_id is None:
+        return templates.TemplateResponse("search.html", {"request": request})
+
+    student = db.query(Students).filter(Students.id == student_id).first()
+    if not student:
+        return templates.TemplateResponse("search.html", {"request": request, "error": "Student not found"})
+
+    student_teachers = [{"id": t.id, "name": t.name, "subject": t.subject} for t in student.teachers]
+    student_courses = [{"id": c.id, "name": c.name} for c in student.courses]
+    student_dict = {"id": student.id, "name": student.name, "grade": student.grade}
+    return templates.TemplateResponse("search.html", {"request": request, "student": student_dict, "student_teachers": student_teachers, "student_courses": student_courses})

@@ -15,6 +15,15 @@
         <p style="color: green;">{{ message }}</p>
     {% endif %}
 
+    <form action="/add-course" method="post">
+        <h2>Create Course</h2>
+        <label for="course-name">Course Name</label>
+        <input id="course-name" name="name" type="text" required />
+        <button type="submit">Create Course</button>
+    </form>
+
+    <hr />
+
     <form action="/assign-student" method="post">
         <div>
             <label for="teacher">Teacher</label>
@@ -36,6 +45,56 @@
         </div>
         <button type="submit">Assign</button>
     </form>
+
+    <hr />
+
+    <section>
+        <h2>Assign Course to Teacher</h2>
+        <form action="/assign-course-to-teacher" method="post">
+            <label for="course-to-teacher">Course</label>
+            <select id="course-to-teacher" name="course_id" required>
+                <option value="">-- select course --</option>
+                {% if courses %}
+                    {% for c in courses %}
+                        <option value="{{ c.id }}">{{ c.name }} (ID: {{ c.id }})</option>
+                    {% endfor %}
+                {% endif %}
+            </select>
+
+            <label for="teacher-for-course">Teacher</label>
+            <select id="teacher-for-course" name="teacher_id" required>
+                <option value="">-- select teacher --</option>
+                {% for t in teachers %}
+                    <option value="{{ t.id }}">{{ t.name }} (ID: {{ t.id }})</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Assign Course to Teacher</button>
+        </form>
+    </section>
+
+    <section>
+        <h2>Assign Course to Student</h2>
+        <form action="/assign-course-to-student" method="post">
+            <label for="course-to-student">Course</label>
+            <select id="course-to-student" name="course_id" required>
+                <option value="">-- select course --</option>
+                {% if courses %}
+                    {% for c in courses %}
+                        <option value="{{ c.id }}">{{ c.name }} (ID: {{ c.id }})</option>
+                    {% endfor %}
+                {% endif %}
+            </select>
+
+            <label for="student-for-course">Student</label>
+            <select id="student-for-course" name="student_id" required>
+                <option value="">-- select student --</option>
+                {% for s in students %}
+                    <option value="{{ s.id }}">{{ s.name }} (ID: {{ s.id }})</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Assign Course to Student</button>
+        </form>
+    </section>
 
     <hr />
 

@@ -3,25 +3,52 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Teacher Details</title>
+    <title>Teacher</title>
 </head>
 <body>
-    <h1>Teacher Details</h1>
+    <h1>Teacher Lookup</h1>
 
-    <h2>{{ teacher.name }} (ID: {{ teacher.id }})</h2>
-    <p>Subject: {{ teacher.subject }}</p>
+    <form action="/teacher" method="get">
+        <label for="teacher_id">Teacher ID</label>
+        <input id="teacher_id" name="teacher_id" type="number" required />
+        <button type="submit">Find</button>
+    </form>
 
-    <h3>Students</h3>
-    {% if students and students|length > 0 %}
-        <ul>
-            {% for s in students %}
-                <li>{{ s.name }} (ID: {{ s.id }}) - Grade: {{ s.grade }}</li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No students assigned to this teacher.</p>
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
     {% endif %}
 
-    <p><a href="/teacher">Search again</a> | <a href="/">Home</a></p>
+    {% if teacher %}
+        <hr />
+        <h2>{{ teacher.name }} (ID: {{ teacher.id }})</h2>
+        <p>Subject: {{ teacher.subject }}</p>
+
+        <h3>Courses</h3>
+        {% if courses and courses|length > 0 %}
+            <ul>
+                {% for c in courses %}
+                    <li>{{ c.name }} (ID: {{ c.id }})</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No courses assigned to this teacher.</p>
+        {% endif %}
+
+        <h3>Students</h3>
+        {% if students and students|length > 0 %}
+            <ul>
+                {% for s in students %}
+                    <li>{{ s.name }} (ID: {{ s.id }}) - Grade: {{ s.grade }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No students assigned to this teacher.</p>
+        {% endif %}
+
+        <p><a href="/assign">Manage assignments</a> | <a href="/">Home</a></p>
+    {% else %}
+        <p>Enter a teacher ID above and click "Find" to view details.</p>
+        <p><a href="/assign">Manage assignments</a> | <a href="/">Home</a></p>
+    {% endif %}
 </body>
 </html>
