@@ -2,13 +2,24 @@ from fastapi import FastAPI, Depends, Request, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
 from models.tables import get_db, Teachers, Students, Courses
+
 app = FastAPI()
+
 templates = Jinja2Templates(directory="templates")
 
+# Home route - main endpoint
 @app.get("/")
 def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})    
 
+# shows the add teacher page
+@app.get("/add-teacher")
+def add_teacher(request: Request):
+
+    return templates.TemplateResponse("add_teacher.html", {"request": request}) 
+
+
+# Recive form data to add a new teacher
 @app.post("/add-teacher")
 def add_teacher(name: str = Form(...), subject: str = Form(...), db=Depends(get_db)):
     new_teacher = Teachers(name=name, subject=subject)
@@ -17,22 +28,33 @@ def add_teacher(name: str = Form(...), subject: str = Form(...), db=Depends(get_
     db.refresh(new_teacher)
     return {"message": "Teacher added successfully", "teacher": {"id": new_teacher.id, "name": new_teacher.name, "subject": new_teacher.subject}}
 
+# shows the add student page
+@app.get("/add-student")
+def add_student(request: Request):
+    return templates.TemplateResponse("add_student.html", {"request": request})
+
+# Recive form data to add a new student
 @app.post("/add-student")
-def add_student(name: str = Form(...), grade: str = Form(...), db=Depends(get_db)):
-    new_student = Students(name=name, grade=grade)
+def add_student(request: Request, student_name: str = Form(...), grade: str = Form(...), db=Depends(get_db)):
+    new_student = Students(name=student_name, grade=grade)
     db.add(new_student)
     db.commit()
     db.refresh(new_student)
-    return {"message": "Student added successfully", "student": {"id": new_student.id, "name": new_student.name, "grade": new_student.grade}}
+    return templates.TemplateResponse("success.html", {"request": request})
+
+@app.get("/add-course")
+def add_course_page(request: Request):
+    return templates.TemplateResponse("add_course.html", {"request": request})
 
 @app.post("/add-course")
-def add_course(name: str = Form(...), db=Depends(get_db)):
+def add_course(request: Request,course_name: str = Form(...), db=Depends(get_db)):
     """Create a new course."""
-    new_course = Courses(name=name)
+    new_course = Courses(name=course_name)
     db.add(new_course)
     db.commit()
     db.refresh(new_course)
-    return {"message": "Course added successfully", "course": {"id": new_course.id, "name": new_course.name}}
+    return templates.TemplateResponse("success.html", {"request": request})
+
 
 @app.post("/assign-student")
 def assign_student(request: Request, teacher_id: int = Form(...), student_id: int = Form(...), db=Depends(get_db)):

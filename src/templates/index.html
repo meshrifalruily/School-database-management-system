@@ -12,38 +12,12 @@
         <a href="/assign">Manage Assignments & Courses</a> |
         <a href="/teacher">Find Teacher</a> |
         <a href="/student">Find Student</a> |
-        <a href="/courses">Courses (JSON)</a>
+        <a href="/add-teacher"> Add Teacher</a>
+        <a href="/add-student"> Add Student</a>
+        <a href="/add-course"> Add Course</a>
     </nav>
 
-    <section>
-        <form action="/add-teacher" method="post">
-            <h2>Add Teacher</h2>
-            <div>
-                <label for="teacher-name">Name</label>
-                <input id="teacher-name" name="name" type="text" required />
-            </div>
-            <div>
-                <label for="teacher-subject">Subject</label>
-                <input id="teacher-subject" name="subject" type="text" required />
-            </div>
-            <button type="submit">Add Teacher</button>
-        </form>
-    </section>
 
-    <section>
-        <form action="/add-student" method="post">
-            <h2>Add Student</h2>
-            <div>
-                <label for="student-name">Name</label>
-                <input id="student-name" name="name" type="text" required />
-            </div>
-            <div>
-                <label for="student-grade">Grade</label>
-                <input id="student-grade" name="grade" type="text" required />
-            </div>
-            <button type="submit">Add Student</button>
-        </form>
-    </section>
 
 </body>
 </html>
