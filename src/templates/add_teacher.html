@@ -6,6 +6,15 @@
     <title>Document</title>
 </head>
 <body>
+      {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+    {% if message %}
+        <p style="color: green;">{{ message }}</p>
+        <p>Added: {{ name }} (ID: {{ id }}) - Subject: {{ subject }}</p>
+    {% endif %}
+
      <section>
         <form action="/add-teacher" method="post">
             <h2>Add Teacher</h2>

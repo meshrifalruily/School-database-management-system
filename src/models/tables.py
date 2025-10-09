@@ -11,24 +11,24 @@ Base = declarative_base()
 teacher_student_association = Table(
     'teacher_student',
     Base.metadata,
-    Column('teacher_id', Integer, ForeignKey('teachers.id')),
-    Column('student_id', Integer, ForeignKey('students.id'))
+    Column('teacher_id', Integer, ForeignKey('teachers.id'), primary_key=True),
+    Column('student_id', Integer, ForeignKey('students.id'),primary_key=True )
 )
 
 # Association table for teachers <-> courses many-to-many
 teacher_course_association = Table(
     'teacher_course',
     Base.metadata,
-    Column('teacher_id', Integer, ForeignKey('teachers.id')),
-    Column('course_id', Integer, ForeignKey('courses.id'))
+    Column('teacher_id', Integer, ForeignKey('teachers.id'), primary_key=True),
+    Column('course_id', Integer, ForeignKey('courses.id'), primary_key=True)
 )
 
 # Association table for students <-> courses many-to-many
 student_course_association = Table(
     'student_course',
     Base.metadata,
-    Column('student_id', Integer, ForeignKey('students.id')),
-    Column('course_id', Integer, ForeignKey('courses.id'))
+    Column('student_id', Integer, ForeignKey('students.id'), primary_key=True),
+    Column('course_id', Integer, ForeignKey('courses.id'), )
 )
 
 class Courses(Base):
